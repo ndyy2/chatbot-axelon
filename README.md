@@ -1,6 +1,4 @@
-Oke, kalau stack-nya seperti itu, README bisa diperbarui agar mencerminkan teknologi yang digunakan, termasuk Next.js, Mongoose, Tailwind, MongoDB, MariaDB via Prisma, dan Auth.js. Contohnya:
 
-````markdown
 # Chatbot Axelon
 
 Chatbot Axelon adalah proyek website chatbot berbasis web modern yang dibangun dengan **Next.js**, menyediakan interaksi cerdas dan responsif. Proyek ini mendukung otentikasi, manajemen database ganda (MongoDB & MariaDB), dan desain antarmuka yang elegan dengan Tailwind CSS.
@@ -86,10 +84,3 @@ MIT License © 2025 Andy Pradana
 ## Kontak
 
 Buat pertanyaan, saran, atau laporkan bug melalui **GitHub Issues**.
-
-```
-
-Kalau mau, aku bisa buatkan **versi super singkat tapi elegan** khusus untuk tampilan GitHub, dengan badge build, database, dan auth sehingga terlihat lebih profesional dan modern.  
-
-Mau aku buat versi itu juga?
-```
