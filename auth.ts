@@ -1,25 +1,24 @@
 import NextAuth from "next-auth";
-import { PrismaAdapter } from "@auth/prisma-adapter";
+import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import Google from "next-auth/providers/google";
+import Github from "next-auth/providers/github";
 import Credentials from "next-auth/providers/credentials";
-import { PrismaClient } from "./app/generated/prisma/client"; // Your specific path
+import { eq } from "drizzle-orm";
+
+import { db, users } from "./schema/schema";
 import bcrypt from "bcrypt";
 
-// --- 1. Prisma Singleton (Prevents DB connection exhaustion in dev) ---
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
-
-const prisma = globalForPrisma.prisma || new PrismaClient();
-
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
-
-// --- 2. Auth Configuration ---
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+  adapter: DrizzleAdapter(db),
   providers: [
     // Google Provider must be invoked
     Google({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+    Github({
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
     }),
     Credentials({
       name: "Credentials",
@@ -33,18 +32,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null;
         }
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string },
-        });
+        const [user] = await db
+          .select()
+          .from(users)
+          .where(eq(users.email, credentials.email as string));
 
         // Check if user exists and has a password (social logins might not)
-        if (!user || !(user as any).hashedPassword) {
+        if (!user || !user.hashedPassword) {
           return null;
         }
 
         const isPasswordValid = await bcrypt.compare(
           credentials.password as string,
-          (user as any).hashedPassword
+          user.hashedPassword
         );
 
         if (!isPasswordValid) {
